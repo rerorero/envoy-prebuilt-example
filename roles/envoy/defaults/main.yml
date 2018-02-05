@@ -1,0 +1,49 @@
+---
+envoy_user: envoy
+envoy_group: envoy
+envoy_built_name: envoy-prebuilt
+envoy_built_image: envoyproxy/envoy:latest
+envoy_bin_path: /usr/local/bin/envoy
+envoy_log_dir: /var/log/envoy
+envoy_conf_dir: /etc/envoy
+envoy_conf_path: "{{ envoy_conf_dir }}/envoy.yaml"
+
+envoy_config:
+  admin:
+    access_log_path: "{{ envoy_conf_dir }}/admin_access.log"
+    address:
+      socket_address:
+        address: 127.0.0.1
+        port_value: 9901
+  static_resources:
+    listeners:
+    - name: listener_0
+      address:
+        socket_address:
+          address: 127.0.0.1
+          port_value: 10000
+      filter_chains:
+      - filters:
+        - name: envoy.http_connection_manager
+          config:
+            stat_prefix: ingress_http
+            codec_type: AUTO
+            route_config:
+              name: local_route
+              virtual_hosts:
+              - name: local_service
+                domains: ["*"]
+                routes:
+                - match: { prefix: "/" }
+                  route: { cluster: some_service }
+            http_filters:
+            - name: envoy.router
+    clusters:
+    - name: some_service
+      connect_timeout: 0.25s
+      type: STATIC
+      lb_policy: ROUND_ROBIN
+      hosts:
+      - socket_address:
+          address: 127.0.0.1
+          port_value: 8080

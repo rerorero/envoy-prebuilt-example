@@ -1,0 +1,25 @@
+---
+- name: delete prebuilt container if exist
+  shell: "docker ps -a | grep {{ envoy_built_name }} && docker rm {{ envoy_built_name }}"
+  delegate_to: localhost
+  run_once: yes
+
+- name: Get prebuilt docker
+  command: "docker run --name {{ envoy_built_name }} {{ envoy_built_image }}"
+  delegate_to: localhost
+  run_once: yes
+
+- name: Extract envoy binary from docker
+  command: "docker cp {{ envoy_built_name }}:/usr/local/bin/envoy /tmp/envoy"
+  delegate_to: localhost
+  run_once: yes
+
+- name: Put envoy binary on the target
+  copy:
+    src: /tmp/envoy
+    dest: "{{ envoy_bin_path }}"
+    owner: root
+    group: root
+    mode: 0755
+  become: yes
+    

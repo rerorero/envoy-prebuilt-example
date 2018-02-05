@@ -1,0 +1,30 @@
+---
+- name: Put envoy config
+  template:
+    src: envoy.conf.yaml.j2
+    dest: "{{ envoy_conf_path }}"
+    owner: "{{ envoy_user }}"
+    group: "{{ envoy_group }}"
+    mode: 0644
+  become: yes
+  notify:
+    - Restart envoy
+    # TODO: reload
+
+- name: Setup envoy service
+  template:
+    src: envoy.service.j2
+    dest: "{{ systemd_service_dir }}/envoy.service"
+    owner: root
+    group: root
+    mode: 0644
+  become: yes
+  notify:
+    - Restart envoy
+
+- name: Start envoy
+  systemd:
+    name: envoy
+    state: started
+    daemon_reload: yes
+  become: yes

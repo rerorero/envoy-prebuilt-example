@@ -1,0 +1,8 @@
+envoy-centos ansible_host=192.168.32.31
+
+[envoy]
+envoy-centos
+
+[all:vars]
+ansible_ssh_user=vagrant
+ansible_ssh_pass=vagrant

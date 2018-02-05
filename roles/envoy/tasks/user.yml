@@ -1,0 +1,25 @@
+---
+- name: Create envoy group
+  group:
+    name: "{{ envoy_group }}"
+    state: present
+  become: yes
+
+- name: Create envoy user
+  user:
+    name: "{{ envoy_user }}"
+    group: "{{ envoy_group }}"
+    state: present
+  become: yes
+
+- name: Create envoy's log directory
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ envoy_user }}"
+    group: "{{ envoy_group }}"
+    mode: 0755
+  with_items:
+    - "{{ envoy_conf_dir }}"
+    - "{{ envoy_log_dir }}"
+  become: yes

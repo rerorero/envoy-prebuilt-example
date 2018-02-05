@@ -1,0 +1,4 @@
+---
+- hosts: envoy
+  roles:
+    - envoy
